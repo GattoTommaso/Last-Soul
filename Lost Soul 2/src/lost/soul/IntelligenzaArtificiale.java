@@ -2,6 +2,9 @@
 package lost.soul;
 
 import java.awt.Graphics;
+import static java.lang.Thread.sleep;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class IntelligenzaArtificiale
@@ -11,25 +14,32 @@ public class IntelligenzaArtificiale
     
     int posZombieX[] = {-1,-1,-1,-1,-1}; //-1 = libera
     int posZombieY[] = {-1,-1,-1,-1,-1}; //-1 = libera
+    boolean statoZombie[] = {false, false, false, false, false}; //inizialmente tutti gli zombie partono non attivi
     int velocita;
+    int rallentatore;
     
-    public IntelligenzaArtificiale()
+    public IntelligenzaArtificiale(ThreadZombie z0, ThreadZombie z1)
     {
         
     }
     
-    public IntelligenzaArtificiale(int nrZombie, int xZombie, int yZombie, int xGiocatore, int yGiocatore)
+    //nei costruttori dell'intelligenza artificale è più comodo passare direttamente gli oggetti Zombie e Giocatore piuttosto che i singoli dati "piatti"
+    public IntelligenzaArtificiale(ThreadZombie z0, ThreadGiocatore giocatore)
     {
-         System.out.println("numero zombie: "+nrZombie);
         
-        this.posZombieX[nrZombie] = xZombie;
-        this.posZombieY[nrZombie] = yZombie;
-        this.xGiocatore = xGiocatore;
-        this.yGiocatore = yGiocatore;
+        //int nrZombie, int xZombie, int yZombie, int xGiocatore, int yGiocatore
+        System.out.println("numero zombie: "+z0.getNrZombie());
+        
+        this.posZombieX[z0.getNrZombie()] = z0.getX();
+        this.posZombieY[z0.getNrZombie()] = z0.getY();
+        this.statoZombie[z0.getNrZombie()] = z0.isAttivo();
+        this.xGiocatore = giocatore.x;
+        this.yGiocatore = giocatore.y;
         velocita = 10;
+        rallentatore = 100;
         
-        System.out.println("xZombie iniziale: "+xZombie);
-        System.out.println("yZombie iniziale: "+yZombie);
+        System.out.println("xZombie iniziale: "+z0.getX());
+        System.out.println("yZombie iniziale: "+z0.getY());
         System.out.println("xGiocatore iniziale: "+xGiocatore);
         System.out.println("yGiocatore iniziale: "+yGiocatore);
         
@@ -41,48 +51,64 @@ public class IntelligenzaArtificiale
     
     void spostaZombie(int nrZombie)
     {
-        while(posZombieX[nrZombie] > xGiocatore)
+        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] > xGiocatore)
         {
-
+            
             posZombieX[nrZombie]-=velocita;
             System.out.println("xZombie: "+ posZombieX[nrZombie]);
             System.out.println("yZombie: "+ posZombieY[nrZombie]);
+            rallentaZombie(rallentatore);
+            
         }
-        while(posZombieX[nrZombie] < xGiocatore)
+        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] < xGiocatore)
         {
+            
             posZombieX[nrZombie]+=velocita;
             System.out.println("xZombie: "+ posZombieX[nrZombie]);
             System.out.println("yZombie: "+ posZombieY[nrZombie]);
+            rallentaZombie(rallentatore);
+            
         }
         
         
-        if(posZombieX[nrZombie] == xGiocatore)
+        if(statoZombie[nrZombie] == true && posZombieX[nrZombie] == xGiocatore)
         {
-            while(posZombieY[nrZombie] > yGiocatore)
+            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] > yGiocatore)
             {
                 posZombieY[nrZombie]-=velocita;
                 System.out.println("xZombie: "+ posZombieX[nrZombie]);
                 System.out.println("yZombie: "+ posZombieY[nrZombie]);
+                rallentaZombie(rallentatore);
             }
-            while(posZombieY[nrZombie] < yGiocatore)
+            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] < yGiocatore)
             {
                 posZombieY[nrZombie]+=velocita;
                 System.out.println("xZombie: "+ posZombieX[nrZombie]);
                 System.out.println("yZombie: "+ posZombieY[nrZombie]);
+                rallentaZombie(rallentatore);
             }
             
-            if(posZombieY[nrZombie] == yGiocatore)
+            if(statoZombie[nrZombie] == true && posZombieY[nrZombie] == yGiocatore)
             {
                 System.out.println("BECCATO");
                 //da disattivare lo stato dello zombie
+                this.statoZombie[nrZombie] = false;
                 System.out.println("xZombie: "+ posZombieX[nrZombie]);
                 System.out.println("yZombie: "+ posZombieY[nrZombie]);
             }
         }
     }
     
-    void disegnaGiocatore(int x, int y)
+    void rallentaZombie(int miss)
     {
+        try
+        {
+            sleep(miss);
+        }
+        catch (InterruptedException ex)
+        {
+            Logger.getLogger(IntelligenzaArtificiale.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 }

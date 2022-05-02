@@ -120,16 +120,19 @@ public class ThreadZombie extends Thread {
     @Override
     public void run() {
         attivo=true;
+        
+        
         while(attivo)
         {
             ai.spostaZombie(nrZombie);
-
             
+            /*
             try {
                 sleep(10000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ThreadZombie.class.getName()).log(Level.SEVERE, null, ex);
             }
+           */
         }
     }
 

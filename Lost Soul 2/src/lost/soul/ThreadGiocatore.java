@@ -37,6 +37,18 @@ public class ThreadGiocatore extends Thread{
         this.ai = ai;
     }
 
+    public IntelligenzaArtificiale getAi()
+    {
+        return ai;
+    }
+
+    public void setAi(IntelligenzaArtificiale ai)
+    {
+        this.ai = ai;
+    }
+    
+    
+
     public int getWidth() {
         return width;
     }
@@ -56,19 +68,27 @@ public class ThreadGiocatore extends Thread{
     
     
     public void spostaDestra() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.x += velocita;
+        this.ai.xGiocatore=this.x;
     }
 
     public void spostaSinistra() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.x -= velocita;
+        this.ai.xGiocatore=this.x;
     }
 
     public void spostaSu() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.y -= velocita;
+        this.ai.yGiocatore=this.y;
     }
 
     public void spostaGiu() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.y += velocita;
+        this.ai.yGiocatore=this.y;
     }
 
     public void disegna(Graphics g) {
@@ -77,6 +97,6 @@ public class ThreadGiocatore extends Thread{
     
     public void run()
     {
-        ai.disegnaGiocatore(x, y);
+        //ai.disegnaGiocatore(x, y);
     }
 }
