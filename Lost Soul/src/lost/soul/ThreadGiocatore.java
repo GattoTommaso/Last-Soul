@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import static java.lang.Thread.sleep;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,26 +18,47 @@ import java.util.logging.Logger;
  *
  * @author Gatto
  */
-public class ThreadGiocatore{
+public class ThreadGiocatore extends Thread {
 
     int x;
     int y;
-    int width;
-    int height;
+    int larghezza;
+    int altezza;
     int velocita;
     BufferedImage img_giocatore;
+    BufferedImage image_proiettile;
+    private IntelligenzaArtificiale ai;
+    LostSoul main;
 
-    public ThreadGiocatore(int x, int y, int width, int height, BufferedImage img_giocatore) {
+    public ThreadGiocatore(int x, int y, int larghezza, int altezza, BufferedImage img_giocatore, IntelligenzaArtificiale ai, BufferedImage image_proiettile, LostSoul main) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.larghezza = larghezza;
+        this.altezza = altezza;
         this.velocita = 20;
         this.img_giocatore = img_giocatore;
+        this.ai = ai;
+        this.image_proiettile = image_proiettile;
+        this.main = main;
+
+        LostSoul.proiettili = new ArrayList();
+    }
+
+    public void spara() {
+        //int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, LostSoul main
+        LostSoul.proiettili.add(new ThreadProiettile(20, 40, x + larghezza / 2, y+altezza/2, image_proiettile, main));
+    }
+
+    public IntelligenzaArtificiale getAi() {
+        return ai;
+    }
+
+    public void setAi(IntelligenzaArtificiale ai) {
+        this.ai = ai;
     }
 
     public int getWidth() {
-        return width;
+        return larghezza;
     }
 
     public void setX(int x) {
@@ -50,26 +72,40 @@ public class ThreadGiocatore{
     public int getY() {
         return y;
     }
-    
-    
-    
+
     public void spostaDestra() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.x += velocita;
+        this.ai.xGiocatore = this.x;
     }
 
     public void spostaSinistra() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.x -= velocita;
+        this.ai.xGiocatore = this.x;
     }
 
     public void spostaSu() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.y -= velocita;
+        this.ai.yGiocatore = this.y;
     }
 
     public void spostaGiu() {
+        //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.y += velocita;
+        this.ai.yGiocatore = this.y;
     }
 
     public void disegna(Graphics g) {
-        g.drawImage(img_giocatore, x, y, width, height, null);
+        g.drawImage(img_giocatore, x, y, larghezza, altezza, null);
+    }
+
+    public Rectangle getBordi() {
+        return new Rectangle(x, y, larghezza, altezza);
+    }
+
+    public void run() {
+        //ai.disegnaGiocatore(x, y);
     }
 }

@@ -20,6 +20,14 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+import java.util.ArrayList;
+import javax.imageio.*;
+import javax.swing.*;
+
 /**
  *
  * @author Gatto
@@ -34,20 +42,34 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     BufferedImage zombie = null;
     BufferedImage soldato = null;
     BufferedImage soldato2 = null;
+    BufferedImage proiettile = null;
+
+    static JFrame finestra_gioco;
 
     private boolean giocoAttivo = false;
-    private ThreadZombie zombie1;
+    private ThreadZombie zombie0;
     private ThreadGiocatore giocatore;
+    private IntelligenzaArtificiale ai;
+    public static ArrayList<ThreadProiettile> proiettili;
 
     public LostSoul() {
         caricaRisorse();
         iniziaGioco();
+
+        while (giocoAttivo == true) {
+            //quando lo zombie becca il soldato il gioco non è più attivo
+            if (verificaGameOver() == true) {
+                giocoAttivo = false;
+                caricaGameOver();
+            }
+        }
+
     }
 
     public static void main(String[] args) {
         LostSoul gioco = new LostSoul();
 
-        JFrame finestra_gioco = new JFrame(nome_gioco);
+        finestra_gioco = new JFrame(nome_gioco);
         Dimension dimensione_finestra = new Dimension(larghezza, altezza);
         finestra_gioco.setPreferredSize(dimensione_finestra);
         finestra_gioco.setMaximumSize(dimensione_finestra);
@@ -56,9 +78,16 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         finestra_gioco.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         finestra_gioco.add(gioco);
+
         finestra_gioco.addKeyListener(gioco);
         gioco.addMouseMotionListener(gioco);
-        
+
+        finestra_gioco.addMouseListener(gioco);
+        gioco.addMouseListener(gioco);
+
+        /*finestra_gioco.addMouseMotionListener(gioco);
+        gioco.addMouseMotionListener(gioco);*/
+
         finestra_gioco.pack();
         finestra_gioco.setVisible(true);
 
@@ -67,9 +96,20 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     }
 
     private void iniziaGioco() {
-        zombie1 = new ThreadZombie(150, 75, 75, 100, giocoAttivo, zombie);
-        zombie1.start();
-        giocatore = new ThreadGiocatore(150, 75, 75, 100, soldato);
+        int x0 = 100;
+        int y0 = 600;
+        zombie0 = new ThreadZombie(x0, y0, 0, 75, 100, giocoAttivo, zombie);
+        //decido che il giocatore in tutte le partite nasce sempre al centro della finestra
+        //VOLENDO si può generare random la posizione del giocatore così ogni volta che viene avviato il gioco il giocatore nasce in un punto diverso
+        giocatore = new ThreadGiocatore(larghezza / 2, altezza / 2, 75, 100, soldato, ai, proiettile, this);
+
+        ai = new IntelligenzaArtificiale(zombie0, giocatore);
+
+        giocatore.setAi(ai);
+        zombie0.setAi(ai);
+        giocatore.start();
+        zombie0.start();
+
     }
 
     private void caricaRisorse() {
@@ -77,7 +117,30 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         sfondo = loader.caricaImmagine("/images/sfondo.jpg");
         soldato = loader.caricaImmagine("/images/personaggio.jpg");
         zombie = loader.caricaImmagine("/images/GifZombie.gif");
+        proiettile = loader.caricaImmagine("/images/bullet.png");
+
         System.out.println("Risorse Caricate");
+    }
+
+    //DA CHIEDERE: come cambiare la schermata 
+    private void caricaGameOver() {
+        System.out.println("GAME OVER");
+        finestra_gioco.add(new LostSoul());
+        finestra_gioco.pack();
+        finestra_gioco.setVisible(true);
+        soldato = null;
+        zombie = null;
+        finestra_gioco.repaint();
+        BufferStrategy buffer = this.getBufferStrategy();
+        if (buffer == null) {
+            createBufferStrategy(2);
+            return;
+        }
+        Graphics g = buffer.getDrawGraphics();
+
+        //disegna lo sfondo
+        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
+
     }
 
     private void disegna() {
@@ -87,17 +150,23 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
             return;
         }
         Graphics g = buffer.getDrawGraphics();
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
 
-        zombie1.disegna(g);
+        //disegna lo sfondo
+        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
+        ai.disegna(g, zombie0);
         giocatore.disegna(g);
+        if (proiettili != null) {
+            for (ThreadProiettile p : proiettili) {
+                p.disegna(g);
+            }
+        }
+
         /*AffineTransform at = AffineTransform.getTranslateInstance(100, 100);
         at.rotate(Math.toRadians(45), soldato.getHeight() / 2, soldato.getWidth() / 2);
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.drawImage(soldato, at, null);*/
-
-        //g.dispose();
+        g.dispose();
         buffer.show();
     }
 
@@ -144,11 +213,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     @Override
     public void mouseMoved(MouseEvent e) {
         // ruotare e dare la x della rotazione del mouse 
-        /*CaricatoreImmagini loader = new CaricatoreImmagini();
-        soldato = loader.caricaImmagine("/images/GifZombie.gif");
-        
-
-        int posizione = (e.getPoint().x) - (giocatore.getWidth() / 2);
+        /*int posizione = (e.getPoint().x) - (giocatore.getWidth() / 2);
         giocatore.setX(posizione);*/
         /*int mX, mY, pX, pY, opp, adj;
         double angle = 0;
@@ -170,6 +235,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        giocatore.spara();
     }
 
     @Override
@@ -186,5 +252,19 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    //il main chiede all'AI se tutti gli stati degli zombie sono a false, se sì comunica true come gameOver
+    private boolean verificaGameOver() {
+
+        for (int i = 0; i < ai.statoZombie.length; i++) {
+            //se trova almeno uno zombie con stato=true non è gameover
+            if (ai.statoZombie[i] == true) {
+                return false; //gameover false
+            }
+        }
+
+        //se sono arrivato qui senza entrare nell'if significa che tutti gli zombie sono a false -> GAMEOVER true
+        return true;
     }
 }
