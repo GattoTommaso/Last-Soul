@@ -51,6 +51,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     private ThreadGiocatore giocatore;
     private IntelligenzaArtificiale ai;
     public static ArrayList<ThreadProiettile> proiettili;
+    private ThreadMusica musica;
 
     public LostSoul() {
         caricaRisorse();
@@ -104,11 +105,13 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         giocatore = new ThreadGiocatore(larghezza / 2, altezza / 2, 75, 100, soldato, ai, proiettile, this);
 
         ai = new IntelligenzaArtificiale(zombie0, giocatore);
-
+        musica = new ThreadMusica(1);
+        
         giocatore.setAi(ai);
         zombie0.setAi(ai);
         giocatore.start();
         zombie0.start();
+        musica.start();
 
     }
 
