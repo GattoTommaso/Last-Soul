@@ -19,15 +19,18 @@ import java.util.logging.Logger;
  */
 public class ThreadGiocatore extends Thread{
 
+    //DA FARE: mi raccomando gli attributi interni di una classe sempre private
+    //quindi di conseguenza vanno creati i metodi get e set
     int x;
     int y;
     int width;
     int height;
     int velocita;
+    private boolean attivo;
     BufferedImage img_giocatore;
     private IntelligenzaArtificiale ai;
 
-    public ThreadGiocatore(int x, int y, int width, int height, BufferedImage img_giocatore, IntelligenzaArtificiale ai) {
+    public ThreadGiocatore(int x, int y, int width, int height, BufferedImage img_giocatore, boolean attivo, IntelligenzaArtificiale ai) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -35,6 +38,7 @@ public class ThreadGiocatore extends Thread{
         this.velocita = 20;
         this.img_giocatore = img_giocatore;
         this.ai = ai;
+        this.attivo = attivo;
     }
 
     public IntelligenzaArtificiale getAi()
@@ -45,6 +49,16 @@ public class ThreadGiocatore extends Thread{
     public void setAi(IntelligenzaArtificiale ai)
     {
         this.ai = ai;
+    }
+
+    public boolean isAttivo()
+    {
+        return attivo;
+    }
+
+    public void setAttivo(boolean attivo)
+    {
+        this.attivo = attivo;
     }
     
     
@@ -97,6 +111,22 @@ public class ThreadGiocatore extends Thread{
     
     public void run()
     {
-        //ai.disegnaGiocatore(x, y);
+        attivo = true;
+        System.out.println("stato giocatore "+attivo);
+        
+        while(attivo)
+        {
+            //sarebbe bello se fosse come lo zombie cioè controllato da un metodo dell'ai
+             System.out.println("stato giocatore "+attivo);
+            //ai.spostaGiocatore(); in questo metodo andrebbero messi i comandi che muovono il giocatore che ora sono ancora nella classe LOstSoul
+            if(ai.statoGiocatore == false)
+            {
+                attivo = false;
+            }
+        }
+        
+       System.out.println("stato giocatore "+attivo);
+        
+        
     }
 }

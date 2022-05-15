@@ -47,6 +47,12 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     private boolean giocoAttivo = false;
     private ThreadZombie zombie0;
+    private ThreadZombie zombie1;
+    private ThreadZombie zombie2;
+    private ThreadZombie zombie3;
+    private ThreadZombie zombie4;
+    
+    private ThreadZombie arrayZombie[];
     private ThreadGiocatore giocatore;
     private IntelligenzaArtificiale ai;
 
@@ -54,15 +60,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         caricaRisorse();
         iniziaGioco();
         
-        while(giocoAttivo==true)
-        {
-            //quando lo zombie becca il soldato il gioco non è più attivo
-            if(verificaGameOver()==true)
-            {
-                giocoAttivo = false;
-                caricaGameOver();
-            }
-        }
+        
         
     }
 
@@ -91,18 +89,48 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     private void iniziaGioco() {
         int x0 = 100;
         int y0= 600;
+        
+        int x1 = 700;
+        int y1= 600;
         zombie0 = new ThreadZombie(x0, y0, 0, 75, 100, giocoAttivo, zombie);
+        zombie1 = new ThreadZombie(x1, y1, 1, 75, 100, giocoAttivo, zombie);
+        zombie2 = new ThreadZombie(x0, y0, 2, 75, 100, giocoAttivo, zombie);
+        zombie3 = new ThreadZombie(x0, y0, 3, 75, 100, giocoAttivo, zombie);
+        zombie4 = new ThreadZombie(x0, y0, 4, 75, 100, giocoAttivo, zombie);
+        arrayZombie = new ThreadZombie[5];
+        
+        
+        
+        
+        
         //decido che il giocatore in tutte le partite nasce sempre al centro della finestra
         //VOLENDO si può generare random la posizione del giocatore così ogni volta che viene avviato il gioco il giocatore nasce in un punto diverso
-        giocatore = new ThreadGiocatore(larghezza/2, altezza/2, 75, 100, soldato, ai);
+        giocatore = new ThreadGiocatore(larghezza/2, altezza/2, 75, 100, soldato, true, ai);
         
-
-        ai = new IntelligenzaArtificiale(zombie0, giocatore);
+        //costruttore con un solo zombie
+        //ai = new IntelligenzaArtificiale(zombie0, giocatore);
+        
+         //costruttore con un array zombie
+        ai = new IntelligenzaArtificiale(arrayZombie, giocatore);
         
         giocatore.setAi(ai);
         zombie0.setAi(ai);
+        zombie1.setAi(ai);
+        
+        //DA FARE CON UN CICLO in cui le posizioni iniziali degli zombie 
+        //vengono calcolate randomicamente  E NON A MANO
+        arrayZombie[0] = zombie0;
+        arrayZombie[1] = zombie1;
+        arrayZombie[2] = zombie2;
+        arrayZombie[3] = zombie3;
+        arrayZombie[4] = zombie4;
+        
+        
+        
+        
         giocatore.start();
         zombie0.start();
+        zombie1.start();
         
     }
 
@@ -114,28 +142,17 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         System.out.println("Risorse Caricate");
     }
     
-    //DA CHIEDERE: come cambiare la schermata 
-    private void caricaGameOver()
+    //carico una schermata particolare e spengo i thread che non mi servono
+    private void caricaGameOver(Graphics g)
     {
-        System.out.println("GAME OVER");
-        finestra_gioco.add(new LostSoul());
-        finestra_gioco.pack();
-        finestra_gioco.setVisible(true);
-        soldato = null;
-        zombie = null;
-        finestra_gioco.repaint();
-         BufferStrategy buffer = this.getBufferStrategy();
-        if (buffer == null) {
-            createBufferStrategy(2);
-            return;
-        }
-        Graphics g = buffer.getDrawGraphics();
+       // System.out.println("GAME OVER");
+        g.setColor(Color.red);
+        g.drawString("CIAO", 50, 50);
         
-        //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
         
     }
 
+   
     private void disegna() {
         BufferStrategy buffer = this.getBufferStrategy();
         if (buffer == null) {
@@ -144,12 +161,27 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         }
         Graphics g = buffer.getDrawGraphics();
         
-        //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
-        ai.disegna(g, zombie0);
-        giocatore.disegna(g);
-        
-        
+        if( Condivisa.stato == 0)
+        {
+            //disegna lo sfondo
+            g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
+            //DA FARE CON IL CICLO che scorre l'array di zombie e li disegna tutti
+            
+            ai.disegna(g, zombie0);
+            ai.disegna(g, zombie1);
+            giocatore.disegna(g);
+
+        }
+        else if ( Condivisa.stato ==1)
+        {
+            //scoreboard
+            
+            g.fillRect(0, 0, larghezza, altezza);
+            
+            
+            caricaGameOver(g);
+        }
+            
         /*AffineTransform at = AffineTransform.getTranslateInstance(100, 100);
         at.rotate(Math.toRadians(45), soldato.getHeight() / 2, soldato.getWidth() / 2);
         Graphics2D g2d = (Graphics2D) g;
@@ -247,20 +279,5 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     public void mouseExited(MouseEvent e) {
     }
 
-    //il main chiede all'AI se tutti gli stati degli zombie sono a false, se sì comunica true come gameOver
-    private boolean verificaGameOver()
-    {
-        
-        for(int i=0; i<ai.statoZombie.length; i++)
-        {
-            //se trova almeno uno zombie con stato=true non è gameover
-            if(ai.statoZombie[i] == true)
-            {
-                return false; //gameover false
-            }
-        }
-        
-        //se sono arrivato qui senza entrare nell'if significa che tutti gli zombie sono a false -> GAMEOVER true
-        return true;
-    }
+    
 }

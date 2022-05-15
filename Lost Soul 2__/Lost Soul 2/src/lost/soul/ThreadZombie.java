@@ -24,6 +24,11 @@ public class ThreadZombie extends Thread {
     BufferedImage img_zombie;
     private IntelligenzaArtificiale ai;
 
+    public ThreadZombie()
+    {
+        
+    }
+    
     public ThreadZombie(int x, int y, int nrZombie, int larghezza, int altezza, boolean attivo, BufferedImage img_zombie) {
         this.x = x;
         this.y = y;
@@ -120,12 +125,19 @@ public class ThreadZombie extends Thread {
     @Override
     public void run() {
         attivo=true;
-        
+        System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
         
         while(attivo)
         {
+           // System.out.println("stato zombie nr:  "+nrZombie+" "+this.getState());
             ai.spostaZombie(nrZombie);
-            
+            System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
+            System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
+            if(ai.statoZombie[this.nrZombie] == false)
+            {
+                attivo = false;
+            }
+           
             /*
             try {
                 sleep(10000);
@@ -134,6 +146,9 @@ public class ThreadZombie extends Thread {
             }
            */
         }
+        
+        System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
+        System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
     }
 
 
