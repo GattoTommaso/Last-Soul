@@ -73,6 +73,11 @@ public class ThreadGiocatore extends Thread {
         return y;
     }
 
+    public BufferedImage getImg_giocatore() {
+        return img_giocatore;
+    }
+   
+
     public void spostaDestra() {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         this.x += velocita;
