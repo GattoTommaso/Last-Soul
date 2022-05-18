@@ -44,9 +44,9 @@ public class ThreadGiocatore extends Thread {
         LostSoul.proiettili = new ArrayList();
     }
 
-    public void spara() {
-        //int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, LostSoul main
-        LostSoul.proiettili.add(new ThreadProiettile(20, 40, x + larghezza / 2, y+altezza/2, image_proiettile, main));
+    public void spara(double angle) {
+        //int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, LostSoul main, double angolo
+        LostSoul.proiettili.add(new ThreadProiettile(20, 40, x + larghezza / 2, y + altezza / 2, image_proiettile, main, angle));
     }
 
     public IntelligenzaArtificiale getAi() {
@@ -76,30 +76,38 @@ public class ThreadGiocatore extends Thread {
     public BufferedImage getImg_giocatore() {
         return img_giocatore;
     }
-   
 
     public void spostaDestra() {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
-        this.x += velocita;
-        this.ai.xGiocatore = this.x;
+        if (x + (larghezza) < LostSoul.larghezzaMondo) {
+            this.x += velocita;
+            this.ai.xGiocatore = this.x;
+        }
     }
 
     public void spostaSinistra() {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
-        this.x -= velocita;
-        this.ai.xGiocatore = this.x;
+        if (x + (larghezza) > 0) {
+            this.x -= velocita;
+            this.ai.xGiocatore = this.x;
+        }
+
     }
 
     public void spostaSu() {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
-        this.y -= velocita;
-        this.ai.yGiocatore = this.y;
+        if (y + (altezza) > 0) {
+            this.y -= velocita;
+            this.ai.yGiocatore = this.y;
+        }
     }
 
     public void spostaGiu() {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
-        this.y += velocita;
-        this.ai.yGiocatore = this.y;
+        if (y + (altezza) < LostSoul.altezzaMondo) {
+            this.y += velocita;
+            this.ai.yGiocatore = this.y;
+        }
     }
 
     public void disegna(Graphics g) {

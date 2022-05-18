@@ -34,8 +34,8 @@ import javax.swing.*;
  */
 public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMotionListener, MouseListener {
 
-    private static final int larghezza = 1200;
-    private static final int altezza = 720;
+    public static final int larghezzaMondo = 1200;
+    public static final int  altezzaMondo= 720;
     private static final String nome_gioco = "Lost Soul";
 
     BufferedImage sfondo = null;
@@ -51,12 +51,11 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     private IntelligenzaArtificiale ai;
     public static ArrayList<ThreadProiettile> proiettili;
     private ThreadMusica musica;
-    
+
     private int xMouse;
     private int yMouse;
     private AffineTransform at;
-    private double angle = 0;    
-    
+    private double angle = 0;
 
     public LostSoul() {
         caricaRisorse();
@@ -76,7 +75,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         LostSoul gioco = new LostSoul();
 
         finestra_gioco = new JFrame(nome_gioco);
-        Dimension dimensione_finestra = new Dimension(larghezza, altezza);
+        Dimension dimensione_finestra = new Dimension(larghezzaMondo, altezzaMondo);
         finestra_gioco.setPreferredSize(dimensione_finestra);
         finestra_gioco.setMaximumSize(dimensione_finestra);
         finestra_gioco.setResizable(false);
@@ -93,7 +92,6 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
         /*finestra_gioco.addMouseMotionListener(gioco);
         gioco.addMouseMotionListener(gioco);*/
-
         finestra_gioco.pack();
         finestra_gioco.setVisible(true);
 
@@ -107,7 +105,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         zombie0 = new ThreadZombie(x0, y0, 0, 75, 100, giocoAttivo, zombie);
         //decido che il giocatore in tutte le partite nasce sempre al centro della finestra
         //VOLENDO si può generare random la posizione del giocatore così ogni volta che viene avviato il gioco il giocatore nasce in un punto diverso
-        giocatore = new ThreadGiocatore(larghezza / 2, altezza / 2, 75, 100, soldato, ai, proiettile, this);
+        giocatore = new ThreadGiocatore(larghezzaMondo / 2, altezzaMondo / 2, 75, 100, soldato, ai, proiettile, this);
 
         ai = new IntelligenzaArtificiale(zombie0, giocatore);
         musica = new ThreadMusica(1);
@@ -125,7 +123,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         sfondo = loader.caricaImmagine("/images/sfondo.jpg");
         soldato = loader.caricaImmagine("/images/soldier.png");
         zombie = loader.caricaImmagine("/images/GifZombie.gif");
-        proiettile = loader.caricaImmagine("/images/bullet.png");
+        proiettile = loader.caricaImmagine("/images/Bullet.png");
 
         System.out.println("Risorse Caricate");
     }
@@ -147,7 +145,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         Graphics g = buffer.getDrawGraphics();
 
         //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
+        g.drawImage(sfondo, 0, 0, larghezzaMondo, altezzaMondo, this);
 
     }
 
@@ -158,22 +156,21 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
             return;
         }
         Graphics g = buffer.getDrawGraphics();
-
+        Graphics2D g2d = (Graphics2D) g;
         //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
+        g.drawImage(sfondo, 0, 0, larghezzaMondo, altezzaMondo, this);
         ai.disegna(g, zombie0);
         //giocatore.disegna(g);
         if (proiettili != null) {
             for (ThreadProiettile p : proiettili) {
-                p.disegna(g);
+                p.disegna(g2d);
             }
         }
 
         //ruota
-        
-        at = AffineTransform.getTranslateInstance(giocatore.getX()-75, giocatore.getY()-75 );
+        at = AffineTransform.getTranslateInstance(giocatore.getX() - 75, giocatore.getY() - 75);
         at.rotate(angle, giocatore.getImg_giocatore().getHeight() / 2, giocatore.getImg_giocatore().getWidth() / 2);
-        Graphics2D g2d = (Graphics2D) g;
+
         g2d.drawImage(giocatore.getImg_giocatore(), at, null);
         g.dispose();
         buffer.show();
@@ -221,13 +218,9 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        xMouse = e.getPoint().x;
-        yMouse = e.getPoint().y;
-        // ruotare e dare la x della rotazione del mouse 
-        /*int posizione = (e.getPoint().x) - (giocatore.getWidth() / 2);
-        giocatore.setX(posizione);*/
+
         int mX, mY, pX, pY, opp, adj;
-        
+
         mX = e.getPoint().x;
         mY = e.getPoint().y;
         pX = giocatore.getX() + 75;
@@ -241,12 +234,12 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         if (adj < 0) {
             angle = -Math.PI + angle;
         }
-        System.out.println(angle);
+        //System.out.println(angle);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        giocatore.spara();
+        giocatore.spara(angle);
     }
 
     @Override
