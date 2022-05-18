@@ -182,23 +182,19 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         
     }
     
-    private void caricaRecord(Graphics g)
-    {
+    private void caricaRecord(Graphics g) {
         g.drawImage(record, 0, 0, larghezza, altezza, this);
         g.setColor(Color.red);
         g.setFont(new Font("calibri", Font.BOLD, 20));
-        String daStampare = "Record partite vecchie: "+System.lineSeparator();
+        String daStampare = "Record partite vecchie: " + System.lineSeparator();
         //creo la stringa che contiene i vari record scorrendo l'array dei punteggi
-        for(int i=0; i<Condivisa.punteggiVecchiePartite.length; i++)
-        {
-            if(Condivisa.punteggiVecchiePartite[i]!=0)
-            {
-                daStampare = daStampare+"PARTITA "+(i+1)+": "+Condivisa.punteggiVecchiePartite[i]+"\n";
+        for (int i = 0; i < Condivisa.punteggiVecchiePartite.length; i++) {
+            if (Condivisa.punteggiVecchiePartite[i] != 0) {
+                daStampare = daStampare + "PARTITA " + (i + 1) + ": " + Condivisa.punteggiVecchiePartite[i] + "\n";
             }
         }
-        g.drawString(daStampare, larghezza/3, altezza/2+50);
-        
-        
+        g.drawString(daStampare, larghezza / 3, altezza / 2 + 50);
+
     }
     
     

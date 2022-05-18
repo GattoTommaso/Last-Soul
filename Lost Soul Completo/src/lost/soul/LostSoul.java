@@ -24,51 +24,59 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.ArrayList;
 import javax.imageio.*;
 import javax.swing.*;
+
 /**
  *
  * @author Gatto
  */
 public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMotionListener, MouseListener {
 
-    private static final int larghezza = 1200;
-    private static final int altezza = 720;
+    public static final int larghezzaMondo = 1200;
+    public static final int altezzaMondo = 720;
     private static final String nome_gioco = "Lost Soul";
 
     BufferedImage sfondo = null;
+    BufferedImage gameover = null;
+    BufferedImage record = null;
     BufferedImage zombie = null;
     BufferedImage soldato = null;
-    BufferedImage soldato2 = null;
-    
+    BufferedImage proiettile = null;
+
     static JFrame finestra_gioco;
 
     private boolean giocoAttivo = false;
     private ThreadZombie zombie0;
+    private ThreadZombie zombie1;
+    private ThreadZombie zombie2;
+    private ThreadZombie zombie3;
+    private ThreadZombie zombie4;
+
+    private ThreadZombie arrayZombie[];
     private ThreadGiocatore giocatore;
     private IntelligenzaArtificiale ai;
+
+    public static ArrayList<ThreadProiettile> proiettili;
+    private ThreadMusica musica;
+
+    private int xMouse;
+    private int yMouse;
+    private AffineTransform at;
+    private double angle = 0;
 
     public LostSoul() {
         caricaRisorse();
         iniziaGioco();
-        
-        while(giocoAttivo==true)
-        {
-            //quando lo zombie becca il soldato il gioco non è più attivo
-            if(verificaGameOver()==true)
-            {
-                giocoAttivo = false;
-                caricaGameOver();
-            }
-        }
-        
+
     }
 
     public static void main(String[] args) {
         LostSoul gioco = new LostSoul();
 
         finestra_gioco = new JFrame(nome_gioco);
-        Dimension dimensione_finestra = new Dimension(larghezza, altezza);
+        Dimension dimensione_finestra = new Dimension(larghezzaMondo, altezzaMondo);
         finestra_gioco.setPreferredSize(dimensione_finestra);
         finestra_gioco.setMaximumSize(dimensione_finestra);
         finestra_gioco.setResizable(false);
@@ -76,9 +84,15 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         finestra_gioco.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         finestra_gioco.add(gioco);
+
         finestra_gioco.addKeyListener(gioco);
         gioco.addMouseMotionListener(gioco);
-        
+
+        finestra_gioco.addMouseListener(gioco);
+        gioco.addMouseListener(gioco);
+
+        /*finestra_gioco.addMouseMotionListener(gioco);
+        gioco.addMouseMotionListener(gioco);*/
         finestra_gioco.pack();
         finestra_gioco.setVisible(true);
 
@@ -88,50 +102,94 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     private void iniziaGioco() {
         int x0 = 100;
-        int y0= 600;
+        int y0 = 600;
+
+        int x1 = 700;
+        int y1 = 600;
+
+        int x2 = 0;
+        int y2 = 0;
+
+        int x3 = 1000;
+        int y3 = 700;
+
+        int x4 = 60;
+        int y4 = 350;
+
         zombie0 = new ThreadZombie(x0, y0, 0, 75, 100, giocoAttivo, zombie);
+        zombie1 = new ThreadZombie(x1, y1, 1, 75, 100, giocoAttivo, zombie);
+        zombie2 = new ThreadZombie(x2, y2, 2, 75, 100, giocoAttivo, zombie);
+        zombie3 = new ThreadZombie(x3, y3, 3, 75, 100, giocoAttivo, zombie);
+        zombie4 = new ThreadZombie(x4, y4, 4, 75, 100, giocoAttivo, zombie);
+        arrayZombie = new ThreadZombie[5];
         //decido che il giocatore in tutte le partite nasce sempre al centro della finestra
         //VOLENDO si può generare random la posizione del giocatore così ogni volta che viene avviato il gioco il giocatore nasce in un punto diverso
-        giocatore = new ThreadGiocatore(larghezza/2, altezza/2, 75, 100, soldato, ai);
-        
+        giocatore = new ThreadGiocatore(larghezzaMondo / 2, altezzaMondo / 2, 75, 100, soldato, ai, proiettile, this, true);
 
-        ai = new IntelligenzaArtificiale(zombie0, giocatore);
-        
-        giocatore.setAi(ai);
-        zombie0.setAi(ai);
+        //DA FARE CON UN CICLO in cui le posizioni iniziali degli zombie
+        //vengono calcolate randomicamente  E NON A MANO
+        arrayZombie[0] = zombie0;
+        arrayZombie[1] = zombie1;
+        arrayZombie[2] = zombie2;
+        arrayZombie[3] = zombie3;
+        arrayZombie[4] = zombie4;
+
+        //costruttore con un array zombie
+        ai = new IntelligenzaArtificiale(arrayZombie, giocatore);
+
+        musica = new ThreadMusica(1);
+        musica.start();
+        for (int i = 0; i < arrayZombie.length; i++) {
+            arrayZombie[i].setAi(ai);
+        }
+
         giocatore.start();
-        zombie0.start();
-        
+        for (int i = 0; i < arrayZombie.length; i++) {
+            arrayZombie[i].start();
+        }
+
     }
 
     private void caricaRisorse() {
         CaricatoreImmagini loader = new CaricatoreImmagini();
         sfondo = loader.caricaImmagine("/images/sfondo.jpg");
-        soldato = loader.caricaImmagine("/images/personaggio.jpg");
+        gameover = loader.caricaImmagine("/images/gameover.jpg");
+        record = loader.caricaImmagine("/images/record.jpg");
+        soldato = loader.caricaImmagine("/images/soldier.png");
         zombie = loader.caricaImmagine("/images/GifZombie.gif");
+        proiettile = loader.caricaImmagine("/images/Bullet.png");
+
         System.out.println("Risorse Caricate");
     }
-    
+
     //DA CHIEDERE: come cambiare la schermata 
-    private void caricaGameOver()
-    {
-        System.out.println("GAME OVER");
-        finestra_gioco.add(new LostSoul());
-        finestra_gioco.pack();
-        finestra_gioco.setVisible(true);
-        soldato = null;
-        zombie = null;
-        finestra_gioco.repaint();
-         BufferStrategy buffer = this.getBufferStrategy();
-        if (buffer == null) {
-            createBufferStrategy(2);
-            return;
+    private void caricaGameOver(Graphics g) {
+        // System.out.println("GAME OVER");
+        g.drawImage(gameover, 0, 0, larghezzaMondo, altezzaMondo, this);
+        g.setColor(Color.red);
+        g.setFont(new Font("calibri", Font.BOLD, 60));
+        g.drawString("GAME OVER", larghezzaMondo / 3, altezzaMondo / 2);
+
+        //stampo a video il contenuto del punteggio corrente
+        g.setFont(new Font("calibri", Font.BOLD, 30));
+        String daStampare = "Punteggio partita corrente: " + Condivisa.punteggioPartitaCorrente;
+        g.drawString(daStampare, larghezzaMondo / 3, altezzaMondo / 2 + 50);
+        giocoAttivo = false;
+    }
+
+    private void caricaRecord(Graphics g) {
+        g.drawImage(record, 0, 0, larghezzaMondo, altezzaMondo, this);
+        g.setColor(Color.red);
+        g.setFont(new Font("calibri", Font.BOLD, 20));
+        String daStampare = "Record partite vecchie: " + System.lineSeparator();
+        //creo la stringa che contiene i vari record scorrendo l'array dei punteggi
+        for (int i = 0; i < Condivisa.punteggiVecchiePartite.length; i++) {
+            if (Condivisa.punteggiVecchiePartite[i] != 0) {
+                daStampare = daStampare + "PARTITA " + (i + 1) + ": " + Condivisa.punteggiVecchiePartite[i] + "\n";
+            }
         }
-        Graphics g = buffer.getDrawGraphics();
-        
-        //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
-        
+        g.drawString(daStampare, larghezzaMondo / 3, altezzaMondo / 2 + 50);
+
     }
 
     private void disegna() {
@@ -141,20 +199,51 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
             return;
         }
         Graphics g = buffer.getDrawGraphics();
-        
-        //disegna lo sfondo
-        g.drawImage(sfondo, 0, 0, larghezza, altezza, this);
-        ai.disegna(g, zombie0);
-        giocatore.disegna(g);
-        
-        
-        /*AffineTransform at = AffineTransform.getTranslateInstance(100, 100);
-        at.rotate(Math.toRadians(45), soldato.getHeight() / 2, soldato.getWidth() / 2);
         Graphics2D g2d = (Graphics2D) g;
+        //disegna lo sfondo
+        if (Condivisa.stato == 0) {
+            //disegna lo sfondo
+            g.drawImage(sfondo, 0, 0, larghezzaMondo, altezzaMondo, this);
+            //CICLO che scorre l'array di zombie e li disegna tutti
+            for (int i = 0; i < arrayZombie.length; i++) {
+                ai.disegna(g, arrayZombie[i]);
+            }
+            //giocatore.disegna(g);
 
-        g2d.drawImage(soldato, at, null);*/
+        } else if (Condivisa.stato == 1) {
+            //scoreboard            
+            g.fillRect(0, 0, larghezzaMondo, altezzaMondo);
+            //la generazione del punteggio casuale va rimossa una volta che funziona quello vero
+            Condivisa.generaPunteggioPartitaCorrente();
+            for (int i = 0; i < Condivisa.punteggiVecchiePartite.length; i++) {
+                if (Condivisa.punteggiVecchiePartite[i] == 0) {
+                    Condivisa.punteggiVecchiePartite[i] = Condivisa.punteggioPartitaCorrente;
+                    break;
+                }
+            }
+            caricaGameOver(g);
+            //DA RIMUOVERE
+            g.fillRect(0, 0, larghezzaMondo, altezzaMondo);
+            caricaRecord(g);
+        } else if (Condivisa.stato == 2) {
+            g.fillRect(0, 0, larghezzaMondo, altezzaMondo);
+            caricaRecord(g);
+        }
 
-        //g.dispose();
+        //================================
+        //giocatore.disegna(g);
+        if (proiettili != null) {
+            for (ThreadProiettile p : proiettili) {
+                p.disegna(g2d);
+            }
+        }
+
+        //ruota
+        at = AffineTransform.getTranslateInstance(giocatore.getX() - 75, giocatore.getY() - 75);
+        at.rotate(angle, giocatore.getImg_giocatore().getHeight() / 2, giocatore.getImg_giocatore().getWidth() / 2);
+
+        g2d.drawImage(giocatore.getImg_giocatore(), at, null);
+        g.dispose();
         buffer.show();
     }
 
@@ -200,15 +289,9 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // ruotare e dare la x della rotazione del mouse 
-        /*CaricatoreImmagini loader = new CaricatoreImmagini();
-        soldato = loader.caricaImmagine("/images/GifZombie.gif");
-        
 
-        int posizione = (e.getPoint().x) - (giocatore.getWidth() / 2);
-        giocatore.setX(posizione);*/
-        /*int mX, mY, pX, pY, opp, adj;
-        double angle = 0;
+        int mX, mY, pX, pY, opp, adj;
+
         mX = e.getPoint().x;
         mY = e.getPoint().y;
         pX = giocatore.getX() + 75;
@@ -222,11 +305,12 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         if (adj < 0) {
             angle = -Math.PI + angle;
         }
-        System.out.println(angle);*/
+        //System.out.println(angle);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        giocatore.spara(angle);
     }
 
     @Override
@@ -246,18 +330,15 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     }
 
     //il main chiede all'AI se tutti gli stati degli zombie sono a false, se sì comunica true come gameOver
-    private boolean verificaGameOver()
-    {
-        
-        for(int i=0; i<ai.statoZombie.length; i++)
-        {
+    private boolean verificaGameOver() {
+
+        for (int i = 0; i < ai.statoZombie.length; i++) {
             //se trova almeno uno zombie con stato=true non è gameover
-            if(ai.statoZombie[i] == true)
-            {
+            if (ai.statoZombie[i] == true) {
                 return false; //gameover false
             }
         }
-        
+
         //se sono arrivato qui senza entrare nell'if significa che tutti gli zombie sono a false -> GAMEOVER true
         return true;
     }
