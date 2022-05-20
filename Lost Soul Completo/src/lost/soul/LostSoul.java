@@ -122,6 +122,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         zombie3 = new ThreadZombie(x3, y3, 3, 75, 100, giocoAttivo, zombie);
         zombie4 = new ThreadZombie(x4, y4, 4, 75, 100, giocoAttivo, zombie);
         arrayZombie = new ThreadZombie[5];
+        
         //decido che il giocatore in tutte le partite nasce sempre al centro della finestra
         //VOLENDO si può generare random la posizione del giocatore così ogni volta che viene avviato il gioco il giocatore nasce in un punto diverso
         giocatore = new ThreadGiocatore(larghezzaMondo / 2, altezzaMondo / 2, 75, 100, soldato, ai, proiettile, this, true);
@@ -175,6 +176,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         String daStampare = "Punteggio partita corrente: " + Condivisa.punteggioPartitaCorrente;
         g.drawString(daStampare, larghezzaMondo / 3, altezzaMondo / 2 + 50);
         giocoAttivo = false;
+        
     }
 
     private void caricaRecord(Graphics g) {
@@ -222,8 +224,6 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
                 }
             }
             caricaGameOver(g);
-            //DA RIMUOVERE
-            g.fillRect(0, 0, larghezzaMondo, altezzaMondo);
             caricaRecord(g);
         } else if (Condivisa.stato == 2) {
             g.fillRect(0, 0, larghezzaMondo, altezzaMondo);
@@ -242,6 +242,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         at = AffineTransform.getTranslateInstance(giocatore.getX() - 75, giocatore.getY() - 75);
         at.rotate(angle, giocatore.getImg_giocatore().getHeight() / 2, giocatore.getImg_giocatore().getWidth() / 2);
 
+        //g2d.drawImage(giocatore.getImg_giocatore(), giocatore.getX(), giocatore.getY(), giocatore.getWidth(), giocatore.getAltezza(), this);
         g2d.drawImage(giocatore.getImg_giocatore(), at, null);
         g.dispose();
         buffer.show();

@@ -73,6 +73,11 @@ public class ThreadGiocatore extends Thread {
         return larghezza;
     }
 
+    public int getAltezza() {
+        return altezza;
+    }
+    
+
     public void setX(int x) {
         this.x = x;
     }
@@ -93,7 +98,6 @@ public class ThreadGiocatore extends Thread {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         if (x + (larghezza) < LostSoul.larghezzaMondo) {
             this.x += velocita;
-            this.ai.xGiocatore = this.x;
         }
     }
 
@@ -101,7 +105,6 @@ public class ThreadGiocatore extends Thread {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         if (x + (larghezza) > 0) {
             this.x -= velocita;
-            this.ai.xGiocatore = this.x;
         }
 
     }
@@ -110,7 +113,6 @@ public class ThreadGiocatore extends Thread {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         if (y + (altezza) > 0) {
             this.y -= velocita;
-            this.ai.yGiocatore = this.y;
         }
     }
 
@@ -118,7 +120,6 @@ public class ThreadGiocatore extends Thread {
         //ogni volta che il giocatore modifica la propria posizione lo deve comunicare alla corrispondente variabile della AI
         if (y + (altezza) < LostSoul.altezzaMondo) {
             this.y += velocita;
-            this.ai.yGiocatore = this.y;
         }
     }
 

@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 
 public class IntelligenzaArtificiale
 {
-    int xGiocatore;
-    int yGiocatore;
+    /*int xGiocatore;
+    int yGiocatore;*/
     
     int posZombieX[] = {-1,-1,-1,-1,-1}; //-1 = libera
     int posZombieY[] = {-1,-1,-1,-1,-1}; //-1 = libera
@@ -18,23 +18,19 @@ public class IntelligenzaArtificiale
     int velocita;
     int rallentatore;
     
-    public IntelligenzaArtificiale(ThreadZombie z0, ThreadZombie z1)
-    {
-        
-    }
+    ThreadGiocatore g;
     
     public IntelligenzaArtificiale(ThreadZombie arrayZombie[], ThreadGiocatore giocatore)
     {
+        g=giocatore;
         for(int i=0; i<arrayZombie.length; i++)
         {
             //int nrZombie, int xZombie, int yZombie, int xGiocatore, int yGiocatore
             System.out.println("numero zombie: "+arrayZombie[i].getNrZombie());
-
+            
             this.posZombieX[arrayZombie[i].getNrZombie()] = arrayZombie[i].getX();
             this.posZombieY[arrayZombie[i].getNrZombie()] = arrayZombie[i].getY();
             this.statoZombie[arrayZombie[i].getNrZombie()] = arrayZombie[i].isAttivo();
-            this.xGiocatore = giocatore.x;
-            this.yGiocatore = giocatore.y;
             this.statoGiocatore = giocatore.isAttivo();
             velocita = 10;
             rallentatore = 100;
@@ -47,7 +43,7 @@ public class IntelligenzaArtificiale
     }
     
     //nei costruttori dell'intelligenza artificale è più comodo passare direttamente gli oggetti Zombie e Giocatore piuttosto che i singoli dati "piatti"
-    public IntelligenzaArtificiale(ThreadZombie z0, ThreadGiocatore giocatore)
+    /*public IntelligenzaArtificiale(ThreadZombie z0, ThreadGiocatore giocatore)
     {
         
         //int nrZombie, int xZombie, int yZombie, int xGiocatore, int yGiocatore
@@ -62,12 +58,12 @@ public class IntelligenzaArtificiale
         velocita = 10;
         rallentatore = 100;
         
-        /*System.out.println("xZombie iniziale: "+z0.getX());
+        System.out.println("xZombie iniziale: "+z0.getX());
         System.out.println("yZombie iniziale: "+z0.getY());
         System.out.println("xGiocatore iniziale: "+xGiocatore);
-        System.out.println("yGiocatore iniziale: "+yGiocatore);*/
+        System.out.println("yGiocatore iniziale: "+yGiocatore);
         
-    }
+    }*/
     
     public void disegna(Graphics g, ThreadZombie zombieDaDisegnare) {
         g.drawImage(zombieDaDisegnare.getImg_zombie(), posZombieX[zombieDaDisegnare.getNrZombie()], posZombieY[zombieDaDisegnare.getNrZombie()], zombieDaDisegnare.getLarghezza(), zombieDaDisegnare.getAltezza(), null);
@@ -76,10 +72,10 @@ public class IntelligenzaArtificiale
     void spostaZombie(int nrZombie)
     {
         //per i movimenti in diagonale - volendo si può rallentare un po' di più rispetto a quando cammina dritto
-        while(statoZombie[nrZombie] == true && posZombieX[nrZombie]!= xGiocatore && posZombieY[nrZombie]!=yGiocatore)
+        while(statoZombie[nrZombie] == true && posZombieX[nrZombie]!= g.getX() && posZombieY[nrZombie]!=g.getY())
         {
             //muoviti in diagonale in basso a dx
-            while(posZombieX[nrZombie] < xGiocatore && posZombieY[nrZombie] < yGiocatore)
+            while(posZombieX[nrZombie] < g.getX() && posZombieY[nrZombie] < g.getY())
             {
                 posZombieX[nrZombie]+=velocita;
                 posZombieY[nrZombie]+=velocita;
@@ -89,7 +85,7 @@ public class IntelligenzaArtificiale
             }
             
             ////muoviti in diagonale in basso a sx
-             while(posZombieX[nrZombie] > xGiocatore && posZombieY[nrZombie] < yGiocatore)
+             while(posZombieX[nrZombie] > g.getX() && posZombieY[nrZombie] < g.getY())
             {
                 posZombieX[nrZombie]-=velocita;
                 posZombieY[nrZombie]+=velocita;
@@ -99,7 +95,7 @@ public class IntelligenzaArtificiale
             }
             
             //muoviti in diagonale in alto a dx
-             while(posZombieX[nrZombie] < xGiocatore && posZombieY[nrZombie] > yGiocatore)
+             while(posZombieX[nrZombie] < g.getX() && posZombieY[nrZombie] > g.getY())
             {
                 posZombieX[nrZombie]+=velocita;
                 posZombieY[nrZombie]-=velocita;
@@ -109,7 +105,7 @@ public class IntelligenzaArtificiale
             }
             
             //muoviti in diagonale in alto a sx
-             while(posZombieX[nrZombie] > xGiocatore && posZombieY[nrZombie] > yGiocatore)
+             while(posZombieX[nrZombie] > g.getX() && posZombieY[nrZombie] > g.getY())
             {
                 posZombieX[nrZombie]-=velocita;
                 posZombieY[nrZombie]-=velocita;
@@ -120,7 +116,7 @@ public class IntelligenzaArtificiale
             
         }
         
-        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] > xGiocatore)
+        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] > g.getX())
         {
             //muoviti in orizzontale verso sx
             posZombieX[nrZombie]-=velocita;
@@ -129,7 +125,7 @@ public class IntelligenzaArtificiale
             rallentaZombie(rallentatore);
             
         }
-        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] < xGiocatore)
+        while(statoZombie[nrZombie] == true && posZombieX[nrZombie] < g.getX())
         {
             //muoviti in orizzontale verso dx
             posZombieX[nrZombie]+=velocita;
@@ -140,9 +136,9 @@ public class IntelligenzaArtificiale
         }
         
         
-        if(statoZombie[nrZombie] == true && posZombieX[nrZombie] == xGiocatore)
+        if(statoZombie[nrZombie] == true && posZombieX[nrZombie] == g.getX())
         {
-            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] > yGiocatore)
+            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] > g.getY())
             {
                 //muoviti in verticale verso il basso
                 posZombieY[nrZombie]-=velocita;
@@ -150,7 +146,7 @@ public class IntelligenzaArtificiale
                 //System.out.println("yZombie: "+ posZombieY[nrZombie]);
                 rallentaZombie(rallentatore);
             }
-            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] < yGiocatore)
+            while(statoZombie[nrZombie] == true && posZombieY[nrZombie] < g.getY())
             {
                 //muoviti in verticale verso l'alto
                 posZombieY[nrZombie]+=velocita;
@@ -159,7 +155,7 @@ public class IntelligenzaArtificiale
                 rallentaZombie(rallentatore);
             }
             
-            if(statoZombie[nrZombie] == true && posZombieY[nrZombie] == yGiocatore && posZombieX[nrZombie] == xGiocatore)
+            if(statoZombie[nrZombie] == true && posZombieY[nrZombie] == g.getY() && posZombieX[nrZombie] == g.getX())
             {
                 System.out.println("BECCATO");
                 //da disattivare lo stato dello zombie

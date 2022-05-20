@@ -67,7 +67,7 @@ public class ThreadProiettile extends Thread {
         AffineTransform at = AffineTransform.getTranslateInstance(x - 75, y - 75);
         at.rotate(angle, altezza / 2, larghezza / 2);
         g.drawImage(image_proiettile, x, y, larghezza, altezza, main);
-        //g.drawImage(image_proiettile, at, null);
+        g.drawImage(image_proiettile, at, null);
     }
 
     private void aggiorna() {
