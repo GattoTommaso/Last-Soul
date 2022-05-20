@@ -29,7 +29,7 @@ public class ThreadGiocatore extends Thread {
     BufferedImage img_giocatore;
     BufferedImage image_proiettile;
     private IntelligenzaArtificiale ai;
-    LostSoul main;
+    //LostSoul main;
 
     public ThreadGiocatore(int x, int y, int larghezza, int altezza, BufferedImage img_giocatore, IntelligenzaArtificiale ai, BufferedImage image_proiettile, LostSoul main, boolean attivo) {
         this.x = x;
@@ -40,15 +40,18 @@ public class ThreadGiocatore extends Thread {
         this.img_giocatore = img_giocatore;
         this.ai = ai;
         this.image_proiettile = image_proiettile;
-        this.main = main;
+        //this.main = main;
         this.attivo = attivo;
 
-        LostSoul.proiettili = new ArrayList();
+        //LostSoul.proiettili = new ArrayList();
     }
 
     public void spara(double angle) {
         //int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, LostSoul main, double angolo
-        LostSoul.proiettili.add(new ThreadProiettile(20, 40, x + larghezza / 2, y + altezza / 2, image_proiettile, main, angle));
+        //LostSoul.proiettili.add(new ThreadProiettile(20, 40, x + larghezza / 2, y + altezza / 2, image_proiettile, main, angle));
+        ThreadProiettile proiettile = new ThreadProiettile(20, 40, (x + larghezza / 2), (y + altezza / 2), image_proiettile, angle);
+        proiettile.setAi(ai);
+        ai.spara(proiettile);
     }
 
     public IntelligenzaArtificiale getAi() {
@@ -133,17 +136,17 @@ public class ThreadGiocatore extends Thread {
 
     public void run() {
         attivo = true;
-        System.out.println("stato giocatore " + attivo);
+        //System.out.println("stato giocatore " + attivo);
 
         while (attivo) {
             //sarebbe bello se fosse come lo zombie cioè controllato da un metodo dell'ai
-            System.out.println("stato giocatore " + attivo);
+            //System.out.println("stato giocatore " + attivo);
             //ai.spostaGiocatore(); in questo metodo andrebbero messi i comandi che muovono il giocatore che ora sono ancora nella classe LOstSoul
             if (ai.statoGiocatore == false) {
                 attivo = false;
             }
         }
 
-        System.out.println("stato giocatore " + attivo);
+        //System.out.println("stato giocatore " + attivo);
     }
 }

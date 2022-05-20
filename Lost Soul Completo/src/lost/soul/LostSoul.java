@@ -9,7 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -21,12 +21,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
+
 import java.util.ArrayList;
-import javax.imageio.*;
-import javax.swing.*;
+
 
 /**
  *
@@ -58,7 +55,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
     private ThreadGiocatore giocatore;
     private IntelligenzaArtificiale ai;
 
-    public static ArrayList<ThreadProiettile> proiettili;
+    
     private ThreadMusica musica;
 
     private int xMouse;
@@ -83,13 +80,19 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
         finestra_gioco.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        finestra_gioco.add(gioco);
+        gioco.addMouseMotionListener(gioco);
+        gioco.addMouseListener(gioco);
+        
+        
 
         finestra_gioco.addKeyListener(gioco);
-        gioco.addMouseMotionListener(gioco);
+        //gioco.addMouseMotionListener(gioco);
 
         finestra_gioco.addMouseListener(gioco);
-        gioco.addMouseListener(gioco);
+        finestra_gioco.addMouseMotionListener(gioco);
+        //gioco.addMouseListener(gioco);
+        
+        finestra_gioco.add(gioco);
 
         /*finestra_gioco.addMouseMotionListener(gioco);
         gioco.addMouseMotionListener(gioco);*/
@@ -143,6 +146,11 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         for (int i = 0; i < arrayZombie.length; i++) {
             arrayZombie[i].setAi(ai);
         }
+        
+        giocatore.setAi(ai);
+        
+        
+        
 
         giocatore.start();
         for (int i = 0; i < arrayZombie.length; i++) {
@@ -232,11 +240,8 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
         //================================
         //giocatore.disegna(g);
-        if (proiettili != null) {
-            for (ThreadProiettile p : proiettili) {
-                p.disegna(g2d);
-            }
-        }
+        
+        ai.disegnaProiettili(g2d);
 
         //ruota
         at = AffineTransform.getTranslateInstance(giocatore.getX() - 75, giocatore.getY() - 75);
@@ -272,6 +277,8 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
             case KeyEvent.VK_D:
                 giocatore.spostaDestra();
                 break;
+            case KeyEvent.VK_F:
+                giocatore.spara(angle);
         }
     }
 
@@ -309,26 +316,7 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
         //System.out.println(angle);
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        giocatore.spara(angle);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
+   
 
     //il main chiede all'AI se tutti gli stati degli zombie sono a false, se sì comunica true come gameOver
     private boolean verificaGameOver() {
@@ -342,5 +330,35 @@ public class LostSoul extends Canvas implements Runnable, KeyListener, MouseMoti
 
         //se sono arrivato qui senza entrare nell'if significa che tutti gli zombie sono a false -> GAMEOVER true
         return true;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

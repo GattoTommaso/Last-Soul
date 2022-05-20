@@ -125,14 +125,16 @@ public class ThreadZombie extends Thread {
     @Override
     public void run() {
         attivo=true;
-        System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
+        //System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
         
         while(attivo)
         {
            // System.out.println("stato zombie nr:  "+nrZombie+" "+this.getState());
+            
             ai.spostaZombie(nrZombie);
-            System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
-            System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
+            //ai.controllaProiettile(nrZombie);
+            //System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
+            //System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
             if(ai.statoZombie[this.nrZombie] == false)
             {
                 attivo = false;
@@ -147,8 +149,8 @@ public class ThreadZombie extends Thread {
            */
         }
         
-        System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
-        System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
+       // System.out.println("stato zombie nr:  "+nrZombie+" "+attivo);
+        //System.out.println("stato zombie per AI nr:  "+nrZombie+" "+ai.statoZombie[this.nrZombie]);
     }
 
 

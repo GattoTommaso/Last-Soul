@@ -25,24 +25,45 @@ public class ThreadProiettile extends Thread {
     private int larghezza;
     private int x, y;
     private BufferedImage image_proiettile;
+    private IntelligenzaArtificiale ai;
     private LostSoul main;
     private double angle;
 
     public ThreadProiettile() {
     }
 
-    public ThreadProiettile(int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, LostSoul main, double angle) {
+    public ThreadProiettile(int altezza, int larghezza, int x, int y, BufferedImage image_proiettile, double angle) {
+        
         this.attivo = false;
         this.altezza = altezza;
         this.larghezza = larghezza;
         this.x = x;
         this.y = y;
         this.image_proiettile = image_proiettile;
-        this.main = main;
         this.angle = angle;
-        start();
     }
 
+    public IntelligenzaArtificiale getAi()
+    {
+        return ai;
+    }
+
+    public void setAi(IntelligenzaArtificiale ai)
+    {
+        this.ai = ai;
+    }
+
+    public void setX(int x)
+    {
+        this.x = x;
+    }
+
+    public void setY(int y)
+    {
+        this.y = y;
+    }
+    
+    
     public int getX() {
         return x;
     }
@@ -63,21 +84,23 @@ public class ThreadProiettile extends Thread {
         return new Rectangle(x, y, larghezza, altezza);
     }
 
+    public double getAngle()
+    {
+        return angle;
+    }
+
+    public void setAngle(double angle)
+    {
+        this.angle = angle;
+    }
+    
+    
+
     public void disegna(Graphics2D g) {
         AffineTransform at = AffineTransform.getTranslateInstance(x - 75, y - 75);
         at.rotate(angle, altezza / 2, larghezza / 2);
         g.drawImage(image_proiettile, x, y, larghezza, altezza, main);
         //g.drawImage(image_proiettile, at, null);
-    }
-
-    private void aggiorna() {
-        x += Math.cos(angle) * velocita;
-        y += Math.sin(angle) * velocita;
-
-        if ((y + (altezza) < 0) || (y + (altezza) > LostSoul.altezzaMondo) || (x + (larghezza) < 0) || (x + (larghezza) > LostSoul.larghezzaMondo)) {
-            this.setAttivo(false);
-            LostSoul.proiettili.remove(this);
-        }
     }
 
     public void setAttivo(boolean attivo) {
@@ -88,7 +111,7 @@ public class ThreadProiettile extends Thread {
     public void run() {
         attivo = true;
         while (attivo) {
-            aggiorna();
+            ai.aggiornaProiettile(this);
 
             try {
                 sleep(100);
