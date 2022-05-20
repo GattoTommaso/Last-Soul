@@ -50,8 +50,8 @@ public class IntelligenzaArtificiale
             this.statoZombie[arrayZombie[i].getNrZombie()] = arrayZombie[i].isAttivo();
             this.statoGiocatore = giocatore.isAttivo();
             velocita = 5;
-            velocitaProiettile = 10;
-            rallentatore = 1000;
+            velocitaProiettile = 50;
+            rallentatore = 50;
             
             /*System.out.println("xZombie iniziale: "+arrayZombie[i].getX());
             System.out.println("yZombie iniziale: "+arrayZombie[i].getY());
